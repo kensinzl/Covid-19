@@ -1,0 +1,51 @@
+input[type="number"] {
+  max-width: 80%;
+}
+
+div.outer {
+  position: fixed;
+  top: 35px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+div#reactive_case_count {
+  color: #403d3d;
+}
+
+div#reactive_recovered_count {
+  color: #006d2c;
+}
+
+div#reactive_active_count {
+  color: #cc4c02;
+}
+
+div#reactive_death_count {
+  color: #dfd8d3;
+}
+
+#controls {
+  background-color: white;
+  padding: 0 10px 10px 10px;
+  cursor: move;
+  opacity: 0.55;
+}
+
+#controls:hover {
+  opacity: 0.9;
+}
+
+#logo {
+  background-color: transparent;
+  cursor: move;
+  opacity: 0.25;
+}
+
+#logo:hover {
+  opacity: 0.95;
+}
+
