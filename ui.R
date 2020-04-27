@@ -6,7 +6,7 @@ ui = bootstrapPage(
     navbarPage(title = "COVID-19 Tracker", 
                id = "nav",
                theme = shinytheme("cerulean"), # https://bootswatch.com/, theme layout of navigation bar 
-               collapsible = TRUE, # collapse the navigation elements into a menu when the width of the browser is less than 940 pixels...
+               collapsible = TRUE, # collapse the navigation elements into a menu when the width of the browser is less than 940 pixels
                
                tabPanel(title = "COVID-19 Mapper", 
                         div(class = "outer",
