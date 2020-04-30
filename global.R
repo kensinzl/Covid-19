@@ -16,6 +16,7 @@ library(geojsonio)
 library(data.table)
 
 library(stringr)
+library(nlme)
 
 
 # setting the color

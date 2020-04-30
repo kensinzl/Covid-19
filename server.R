@@ -84,20 +84,6 @@ server <- function(input, output) {
     
 
     #-------------------------------- COVID-19 mapper (world map) -----------------------------
-    bins = c(0, 100, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, Inf)
-    # c("antiquewhite", "lightpink", "indianred1", "indianred2", "indianred3", "firebrick1", "firebrick3", "firebrick4") => quite really hard to present the color, and the color is correct but from map hard to see
-    cv_palette = colorBin(c("#CCFFCC", "#FFCCCC", "#CC0000"), domain = sort(unique(cv_cases$Accumulate_Case)), bins = bins, na.color = "Black")
-
-    cv_palette1 = reactive({
-        colorBin(c("#CCFFCC", "#FFCCCC", "#CC0000"), domain = sort(unique(reactive_db()$Accumulate_Case)), bins = bins, na.color = "Black")
-    })
-
-    cv_palette2 = reactive({
-        range_gap = as.numeric(sort(summary(reactive_db()$Accumulate_Case)))
-        bins = c(0, ceiling(range_gap[2]), ceiling(range_gap[3]), ceiling(range_gap[4]), ceiling(range_gap[5]), ceiling(range_gap[6]))
-        colorBin(c("pink", "red", "violetred4"), domain = sort(unique(reactive_db()$Accumulate_Case)), bins = bins, na.color = "Black")
-    })
-
     output$mymap <- renderLeaflet({ 
       basemap
     })
@@ -133,22 +119,12 @@ server <- function(input, output) {
         worldcountry_plot_polygons
     })
 
-    # reactive_polygons = reactive({
-    #     worldcountry[worldcountry$ISO_A3 %in% reactive_db()$alpha3, ]
-    # })
-
-    reactive_polygons_COLOR = reactive({
-        color_value = do.call('rbind', lapply(reactive_polygons()$ISO_A3, function(wd_alpha3) {
-            reactive_db() %>% filter(alpha3 == wd_alpha3) %>% select(Accumulate_Case)
-        }))
-        as.numeric(as.character(color_value$Accumulate_Case))
-    })
-
     # new cases for the latest past 24Hs
     reactive_db_last24h = reactive({
-      cv_cases %>% filter(date == input$plot_date & new_cases > 0)
+      cv_cases %>% filter(Date == input$plot_date & New_Case > 0)
     })
 
+    # dynamically generate the bin gaps
     color_bin_gap = function(plot_date) {
         # summary => min 1st mean median 3st max
         # eg: 2020-01-22 => 0.000000   0.000000   0.000000   0.000000   3.094972 548.000000
@@ -163,23 +139,21 @@ server <- function(input, output) {
         range_gap
     }
 
-    color_palette_test = reactive({colorBin(
-                palette = c("#CCFFCC", "#FFCCCC", "#CC0000"), 
-                domain = sort(unique((cv_cases %>% filter(Date == input$plot_date))$Accumulate_Case)), 
-                bins = color_bin_gap(input$plot_date), 
-                na.color = "Black"
-            )})
 
-    color_palette = function(plot_date, color_value) {
-        colorBins = colorBin(
-                palette = c("#CCFFCC", "#FFCCCC", "#CC0000"), 
-                domain = sort(unique((cv_cases %>% filter(Date == input$plot_date))$Accumulate_Case)), 
-                bins = color_bin_gap(plot_date), 
-                na.color = "Black"
-            )
-        colorBins(color_value)
+    color_bin = function(plot_date) {
+        colorBin(
+            palette = c("#CCFFCC", "#FFCCCC", "#CC0000"), 
+            domain = sort(unique((cv_cases %>% filter(Date == plot_date))$Accumulate_Case)), 
+            bins = color_bin_gap(plot_date), 
+            na.color = "Black"
+        )
     }
 
+    # addPolygons::fillColor have to receive the numeric value, and the colorBin is the function, the reactive is not one funtion
+    color_palette = function(plot_date, color_value) {
+        colorBins = color_bin(plot_date) # colorBins become one function
+        colorBins(color_value)
+    }
 
     observeEvent(input$plot_date, {
         leafletProxy("mymap") %>%
@@ -188,35 +162,28 @@ server <- function(input, output) {
         removeControl("legend") %>%
         addLegend(
             position = "bottomright", 
-            pal = colorBin(
-                palette = c("#CCFFCC", "#FFCCCC", "#CC0000"), 
-                domain = sort(unique((cv_cases %>% filter(Date == input$plot_date))$Accumulate_Case)), 
-                bins = color_bin_gap(input$plot_date), 
-                na.color = "Black"
-            ), 
+            pal = color_bin(input$plot_date), 
             values = (cv_cases %>% filter(Date == input$plot_date))$Accumulate_Case, 
             title = "<small>Accumulate Case</small>",
             layerId = "legend"
         ) %>%
         # here, this data overwritten the worldcountry from leaflet and only fullfil the national territory for the selected affected country
-        #addPolygons(data = reactive_polygons(), stroke = FALSE, smoothFactor = 0.1, fillOpacity = 0.15, fillColor = ~cv_palette(reactive_polygons_COLOR())) #%>%
         addPolygons(data = reactive_polygons(), stroke = FALSE, smoothFactor = 0.1, fillOpacity = 0.15, fillColor = color_palette(input$plot_date, reactive_polygons()$Color)) %>%
         
-        # addCircleMarkers(data = reactive_db_last24h(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(new_cases)^(1/5), 
-        #                  fillOpacity = 0.1, color = covid_col, group = "2019-COVID (new)",
-        #                  label = sprintf("<strong>%s (past 24h)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g", reactive_db_last24h()$country, reactive_db_last24h()$new_cases, reactive_db_last24h()$new_deaths, reactive_db_last24h()$new_recovered, reactive_db_last24h()$newper100k) %>% lapply(htmltools::HTML),
-        #                  labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto")) %>%
+        addCircleMarkers(data = reactive_db_last24h(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(New_Case)^(1/5), 
+                         fillOpacity = 0.1, color = covid_col, group = "2019-COVID (new)",
+                         label = sprintf("<strong>%s (past 24h)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g", reactive_db_last24h()$Country, reactive_db_last24h()$New_Case, reactive_db_last24h()$New_Death, reactive_db_last24h()$New_Recovery, reactive_db_last24h()$newper100k) %>% lapply(htmltools::HTML),
+                         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto")) %>%
         
         addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(Accumulate_Case)^(1/5), 
                          fillOpacity = 0.1, color = covid_col, group = "2019-COVID (cumulative)",
-                         label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g<br/>Colour: %s", reactive_db()$Country, reactive_db()$Accumulate_Case, reactive_db()$Accumulate_Death,reactive_db()$Accumulate_Recovery, reactive_db()$per100k, cv_palette(reactive_db()$Accumulate_Case)) %>% lapply(htmltools::HTML),
-                         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto")) 
-        #%>%
+                         label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g", reactive_db()$Country, reactive_db()$Accumulate_Case, reactive_db()$Accumulate_Death,reactive_db()$Accumulate_Recovery, reactive_db()$per100k) %>% lapply(htmltools::HTML),
+                         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto"))  %>%
         
-        # addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(active_cases)^(1/5), 
-        #                  fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
-        #                  label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Confirmdes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$country, reactive_db()$active_cases, reactive_db()$activeper100k, reactive_db()$recovered, reactive_db()$deaths) %>% lapply(htmltools::HTML),
-        #                  labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto"))
+        addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(Active_Case)^(1/5), 
+                         fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
+                         label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Confirmdes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$Country, reactive_db()$Active_Case, reactive_db()$activeper100k, reactive_db()$Accumulate_Recovery, reactive_db()$Accumulate_Death) %>% lapply(htmltools::HTML),
+                         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto"))
     })
   
     
