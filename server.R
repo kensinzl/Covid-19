@@ -1,5 +1,5 @@
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
     
     ##############################################################
     #        COVID-19 mapper (right summary panel)               #
@@ -43,7 +43,7 @@ server <- function(input, output) {
             scale_fill_manual(values = c(covid_new)) +
             scale_y_continuous(labels = function(l) {trans = l / 1000; paste0(trans, "K")}) +
             theme(legend.title = element_blank(), legend.position = "", plot.margin = margin(5, 12, 5, 5))
-        ggplotly(g1, tooltip = c("Date", "New_Case")) %>% layout(showlegend = FALSE)
+        ggplotly(g1, tooltip = c("Date", "New_Case")) %>% layout(showlegend = FALSE) %>% config(displayModeBar = FALSE)
     }
     
     output$new_cases_curve = renderPlotly({
@@ -58,7 +58,7 @@ server <- function(input, output) {
             scale_colour_manual(values = c(covid_cul)) +
             scale_y_continuous(labels = function(l) {trans = l / 1000; paste0(trans, "K")}) +
             theme(legend.title = element_blank(), legend.position = "", plot.margin = margin(5, 12, 5, 5))
-        ggplotly(g1, tooltip = c("Date", "Accumulate_Case")) %>% layout(showlegend = FALSE)
+        ggplotly(g1, tooltip = c("Date", "Accumulate_Case")) %>% layout(showlegend = FALSE) %>% config(displayModeBar = FALSE) # no need to the stupid mode bar
     }
     
     output$cumulative_case_cure <- renderPlotly({
@@ -89,7 +89,7 @@ server <- function(input, output) {
     })
     
     # TODO: leaflet() => Actually put or not put is same. Just for ~ syntax explicitly inherit from worldcountry
-    basemap = leaflet(worldcountry) %>%
+    basemap = leaflet(data = worldcountry) %>%
               addTiles() %>% # Add default OpenStreetMap map tiles
               addProviderTiles(providers$CartoDB.Positron) %>%
               # Set the rectangular bounds of the world map, its diagonal line with the two defined geo points. 
@@ -164,7 +164,7 @@ server <- function(input, output) {
             position = "bottomright", 
             pal = color_bin(input$plot_date), 
             values = (cv_cases %>% filter(Date == input$plot_date))$Accumulate_Case, 
-            title = "<small>Accumulate Case</small>",
+            title = "<small><bold>Accumulate Case</bold></small>",
             layerId = "legend"
         ) %>%
         # here, this data overwritten the worldcountry from leaflet and only fullfil the national territory for the selected affected country
@@ -172,22 +172,24 @@ server <- function(input, output) {
         
         addCircleMarkers(data = reactive_db_last24h(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(New_Case)^(1/5), 
                          fillOpacity = 0.1, color = covid_col, group = "2019-COVID (new)",
-                         label = sprintf("<strong>%s (past 24h)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g", reactive_db_last24h()$Country, reactive_db_last24h()$New_Case, reactive_db_last24h()$New_Death, reactive_db_last24h()$New_Recovery, reactive_db_last24h()$newper100k) %>% lapply(htmltools::HTML),
+                         label = sprintf("<strong>%s (past 24h)</strong><br/>Confirmed cases: %s<br/>Deaths: %s<br/>Recovered: %s<br/>Cases per 100,000: %s", reactive_db_last24h()$Country, prettyNum(reactive_db_last24h()$New_Case, big.mark=","), prettyNum(reactive_db_last24h()$New_Death, big.mark=","), prettyNum(reactive_db_last24h()$New_Recovery, big.mark=","), prettyNum(reactive_db_last24h()$newper100k, big.mark=",")) %>% lapply(htmltools::HTML),
                          labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto")) %>%
         
         addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(Accumulate_Case)^(1/5), 
                          fillOpacity = 0.1, color = covid_col, group = "2019-COVID (cumulative)",
-                         label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Recovered: %d<br/>Cases per 100,000: %g", reactive_db()$Country, reactive_db()$Accumulate_Case, reactive_db()$Accumulate_Death,reactive_db()$Accumulate_Recovery, reactive_db()$per100k) %>% lapply(htmltools::HTML),
+                         label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %s<br/>Deaths: %s<br/>Recovered: %s<br/>Cases per 100,000: %s", reactive_db()$Country, prettyNum(reactive_db()$Accumulate_Case, big.mark=","), prettyNum(reactive_db()$Accumulate_Death, big.mark=","), prettyNum(reactive_db()$Accumulate_Recovery, big.mark=","), prettyNum(reactive_db()$per100k, big.mark=",")) %>% lapply(htmltools::HTML),
                          labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto"))  %>%
         
         addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(Active_Case)^(1/5), 
                          fillOpacity = 0.1, color = covid_col, group = "2019-COVID (active)",
-                         label = sprintf("<strong>%s (active)</strong><br/>Confirmed cases: %g<br/>Cases per 100,000: %g<br/><i><small>Confirmdes individuals known to have<br/>recovered (%g) or died (%g).</small></i>", reactive_db()$Country, reactive_db()$Active_Case, reactive_db()$activeper100k, reactive_db()$Accumulate_Recovery, reactive_db()$Accumulate_Death) %>% lapply(htmltools::HTML),
+                         label = sprintf("<strong>%s (active)</strong><br/>Active cases: %s<br/>Cases per 100,000: %s<br/><i><small>Confirmed individuals known to have<br/>recovered (%s) or died (%s).</small></i>", reactive_db()$Country, prettyNum(reactive_db()$Active_Case, big.mark=","), prettyNum(reactive_db()$activeper100k, big.mark=","), prettyNum(reactive_db()$Accumulate_Recovery, big.mark=","), prettyNum(reactive_db()$Accumulate_Death, big.mark=",")) %>% lapply(htmltools::HTML),
                          labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col), textsize = "15px", direction = "auto"))
     })
   
     
-    
+    # start the new session to avoid the gray out state
+    # https://shiny.rstudio.com/articles/reconnecting.html
+    session$allowReconnect(TRUE)
     
     
     # #--------------------------------Data-----------------------------
