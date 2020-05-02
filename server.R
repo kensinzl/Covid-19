@@ -190,6 +190,25 @@ server <- function(input, output, session) {
     # start the new session to avoid the gray out state
     # https://shiny.rstudio.com/articles/reconnecting.html
     session$allowReconnect(TRUE)
+
+
+    # #-------------------------------- Send Email -----------------------------
+    observeEvent(input$submit, {
+        if(nchar(trimws(input$customer_email)) != 0 && nchar(trimws(input$customer_comment)) != 0 ) {
+            email =  envelope() %>% from("zldwdgm@gmail.com") %>% to("zlchldjyy@gmail.com") %>% subject(str_c(input$customer_email, " : Review Comment Coming. ")) %>% text(input$customer_comment)
+            gmailSMTP = emayili::server(host = "smtp.gmail.com", port = 465, username = "zldwdgm@gmail.com", password = "cebyibawafcragqs")
+            gmailSMTP(email, verbose = TRUE)    
+
+            updateTextInput(session,"customer_email", value="")
+            updateTextInput(session,"customer_comment", value="")
+            session$sendCustomMessage(type = 'testmessage', message = 'Thank you for your comment. ')
+        } else {
+            session$sendCustomMessage(type = 'testmessage', message = 'Please input the email and comment. ')
+        }
+    })
+
+
+
     
     
     # #--------------------------------Data-----------------------------

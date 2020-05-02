@@ -8,9 +8,10 @@ ui = bootstrapPage(
                theme = shinytheme("cerulean"), # https://bootswatch.com/, theme layout of navigation bar 
                collapsible = TRUE, # collapse the navigation elements into a menu when the width of the browser is less than 940 pixels
                
-               tabPanel(title = "COVID-19 Mapper", 
+               tabPanel(title = "COVID-19 Mapper", icon = icon("map"),
                         div(class = "outer",
                             tags$head(includeCSS("styles.css")),
+                            tags$head(tags$script(src = "message-handler.js")),
                             leafletOutput(outputId = "mymap", width="100%", height="100%"),
                             absolutePanel(id = "controls", fixed = TRUE, draggable = TRUE,
                                           top = 70, left = 50, width = 280, height = "auto",
@@ -37,7 +38,13 @@ ui = bootstrapPage(
                             absolutePanel(id = "logo", bottom = 20, left = 20, width = 80, fixed = TRUE, draggable = FALSE, height = "auto", actionButton(inputId = "envelope", label = "", icon = icon("envelope"), style='padding:5px', onclick = sprintf("window.open('%s')", "https://mail.google.com/mail/u/0/?view=cm&tf=0%22+++&to=+zlchldjyy@gmail.com++&su=Covid-19%20Tracker%20Comment++&body=Thank%20you%20for%20your%20valuable%20time.%20Please%20give%20me%20some%20comment.&fs=1")))
                         )
                ),
-               
+               tabPanel(title = "Your Comment", icon = icon("envelope"),
+                textInput(inputId = "customer_email", label = "Email", placeholder = "Your Email Address"),
+                textAreaInput(inputId = "customer_comment", label = "Comment", placeholder = "Please share your valuable comment. Thanks.", width = "400px", height = "300px", rows = 30),
+                actionButton("submit", "Submit"),
+                h3(textOutput("submit_response")),
+               ),
+
                tabPanel(title = "Region plots", 
                         helpText("Coming soon......")
                         # sidebarLayout(

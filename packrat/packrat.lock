@@ -150,6 +150,12 @@ Version: 0.3.0
 Hash: 30b58109e4d7c6184a9c2e32f9ae38c6
 Requires: rlang
 
+Package: emayili
+Source: CRAN
+Version: 0.3.9
+Hash: 69f1eae2fa20d9aa9828e07067c245b8
+Requires: base64enc, curl, glue, httr, magrittr, mime, stringi
+
 Package: evaluate
 Source: CRAN
 Version: 0.14
@@ -443,6 +449,12 @@ Source: CRAN
 Version: 1.3.1
 Hash: 9265e661634ee2d5c89d93d5551fbc58
 Requires: BH, R6, Rcpp, clipr, crayon, hms, tibble
+
+Package: reshape
+Source: CRAN
+Version: 0.8.8
+Hash: 77b6a96819c0a99bbfc141526b60ce5a
+Requires: plyr
 
 Package: reshape2
 Source: CRAN

@@ -18,6 +18,9 @@ library(data.table)
 library(stringr)
 library(nlme)
 
+library(emayili)
+
+
 
 # setting the color
 covid_col = "#cc4c02"  # base map brown
