@@ -2,6 +2,13 @@ input[type="number"] {
   max-width: 80%;
 }
 
+#loading_gif {
+  position: fixed; /* or absolute */
+  top: 50%;
+  left: 50%;
+  opacity: 1;
+}
+
 div.outer {
   position: fixed;
   top: 35px;

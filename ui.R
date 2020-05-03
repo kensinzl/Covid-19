@@ -1,6 +1,10 @@
 ui = bootstrapPage(
     # TODO: test the Google Analytics
-    tags$head(includeHTML("Google Analytics/gtag.html")),
+    tags$head(
+      includeHTML("Google Analytics/gtag.html"),
+      tags$head(tags$script(src = "message-handler.js")),
+      tags$head(tags$script(src = "busy.js"))
+    ),
     
     # TODO: click the name should be back to the index.html
     navbarPage(title = "COVID-19 Tracker", 
@@ -9,9 +13,9 @@ ui = bootstrapPage(
                collapsible = TRUE, # collapse the navigation elements into a menu when the width of the browser is less than 940 pixels
                
                tabPanel(title = "COVID-19 Mapper", icon = icon("map"),
+                        div(class = "busy", width="100%", height="100%", img(id = "loading_gif", src = "loading.gif", width="3%", height="3%")),
                         div(class = "outer",
                             tags$head(includeCSS("styles.css")),
-                            tags$head(tags$script(src = "message-handler.js")),
                             leafletOutput(outputId = "mymap", width="100%", height="100%"),
                             absolutePanel(id = "controls", fixed = TRUE, draggable = TRUE,
                                           top = 70, left = 50, width = 280, height = "auto",
