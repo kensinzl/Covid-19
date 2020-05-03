@@ -35,14 +35,14 @@ ui = bootstrapPage(
                                           )
                             ),
                             #absolutePanel(id = "logo", bottom = 20, left = 60, width = 80, fixed = TRUE, draggable = FALSE, height = "auto", tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png', height='40', width='80'))),
-                            absolutePanel(id = "logo", bottom = 20, left = 20, width = 80, fixed = TRUE, draggable = FALSE, height = "auto", actionButton(inputId = "envelope", label = "", icon = icon("envelope"), style='padding:5px', onclick = sprintf("window.open('%s')", "https://mail.google.com/mail/u/0/?view=cm&tf=0%22+++&to=+zlchldjyy@gmail.com++&su=Covid-19%20Tracker%20Comment++&body=Thank%20you%20for%20your%20valuable%20time.%20Please%20give%20me%20some%20comment.&fs=1")))
+                            absolutePanel(id = "logo", bottom = 20, left = 20, width = 80, fixed = TRUE, draggable = FALSE, height = "auto", actionButton(inputId = "envelope", label = "", icon = icon("envelope"), style='padding:5px', onclick = "var a = $('a[data-value=\"Your Comment\"]'); a.click()")
+                            )
                         )
                ),
                tabPanel(title = "Your Comment", icon = icon("envelope"),
-                textInput(inputId = "customer_email", label = "Email", placeholder = "Your Email Address"),
-                textAreaInput(inputId = "customer_comment", label = "Comment", placeholder = "Please share your valuable comment. Thanks.", width = "400px", height = "300px", rows = 30),
-                actionButton("submit", "Submit"),
-                h3(textOutput("submit_response")),
+                  textInput(inputId = "customer_email", label = a(style = "color:black", "Email", a(style = "color:red", "*")), placeholder = "Your Email Address"),
+                  textAreaInput(inputId = "customer_comment", label = a(style = "color:black", "Comment", a(style = "color:red", "*")), placeholder = "Please share your valuable comment. Thanks.", width = "400px", height = "300px", rows = 30),
+                  actionButton("submit", "Submit")
                ),
 
                tabPanel(title = "Region plots", 

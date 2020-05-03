@@ -13,6 +13,23 @@ Source: CRAN
 Version: 1.1.0
 Hash: d1075050684753e939c45775617c8f38
 
+Package: R.methodsS3
+Source: CRAN
+Version: 1.8.0
+Hash: 740c00b3d68e6a9027d1d915d307c259
+
+Package: R.oo
+Source: CRAN
+Version: 1.23.0
+Hash: 23075ea6b5c395e20b61881e6646dfe4
+Requires: R.methodsS3
+
+Package: R.utils
+Source: CRAN
+Version: 2.9.2
+Hash: 5844ea1a3ef81a9e8d1e1872110ead64
+Requires: R.methodsS3, R.oo
+
 Package: R6
 Source: CRAN
 Version: 2.4.1
@@ -149,12 +166,6 @@ Source: CRAN
 Version: 0.3.0
 Hash: 30b58109e4d7c6184a9c2e32f9ae38c6
 Requires: rlang
-
-Package: emayili
-Source: CRAN
-Version: 0.3.9
-Hash: 69f1eae2fa20d9aa9828e07067c245b8
-Requires: base64enc, curl, glue, httr, magrittr, mime, stringi
 
 Package: evaluate
 Source: CRAN
@@ -308,6 +319,12 @@ Source: CRAN
 Version: 1.5
 Hash: bdc4d48c3135e8f3b399536ddf160df4
 
+Package: mailR
+Source: CRAN
+Version: 0.4.1
+Hash: f9af8e0972b40083cb03428a354de35f
+Requires: R.utils, rJava, stringr
+
 Package: maptools
 Source: CRAN
 Version: 0.9-9
@@ -437,6 +454,11 @@ Source: CRAN
 Version: 0.3.4
 Hash: fb4c0edca61826ca0b5b33c828a7b276
 Requires: magrittr, rlang
+
+Package: rJava
+Source: CRAN
+Version: 0.9-12
+Hash: 8262e4ede98543de0824c4300e60fc55
 
 Package: raster
 Source: CRAN

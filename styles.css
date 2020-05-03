@@ -42,7 +42,7 @@ div#reactive_death_count {
 #logo {
   background-color: transparent;
   cursor: move;
-  opacity: 0.25;
+  opacity: 0.6;
 }
 
 #logo:hover {

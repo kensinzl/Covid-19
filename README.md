@@ -48,3 +48,6 @@ https://blog.gtwang.org/r/r-leaflet-interactive-map-package-tutorial/
 http://rstudio.github.io/leaflet/map_widget.html
 => leaflet(df) %>% addTitle() %>% addCircles(lng = ~Long, lat = ~Lat) ~ meaning Long or Lat from df
 
+9. How to combine front and server with JS
+https://shiny.rstudio.com/articles/js-send-message.html
+

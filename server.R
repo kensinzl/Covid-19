@@ -195,9 +195,17 @@ server <- function(input, output, session) {
     # #-------------------------------- Send Email -----------------------------
     observeEvent(input$submit, {
         if(nchar(trimws(input$customer_email)) != 0 && nchar(trimws(input$customer_comment)) != 0 ) {
-            email =  envelope() %>% from("zldwdgm@gmail.com") %>% to("zlchldjyy@gmail.com") %>% subject(str_c(input$customer_email, " : Review Comment Coming. ")) %>% text(input$customer_comment)
-            gmailSMTP = emayili::server(host = "smtp.gmail.com", port = 465, username = "zldwdgm@gmail.com", password = "cebyibawafcragqs")
-            gmailSMTP(email, verbose = TRUE)    
+          # https://github.com/rpremraj/mailR => using this package
+          # https://snov.io/knowledgebase/zh/%e5%a6%82%e4%bd%95%e8%ae%be%e7%bd%ae-smtp-%e6%88%96-gmail-%e5%8f%91%e4%bb%b6%e4%ba%ba%e5%b8%90%e6%88%b7/#smtp => how to set gmail smtp
+            send.mail(from = "zldwdgm@gmail.com", # using this email as the smtp server
+                      to = "zlchldjyy@gmail.com", # my personal email
+                      subject = str_c(input$customer_email, " : Review Comment Coming. "),
+                      body = input$customer_comment,
+                      encoding = "utf-8",
+                      smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "zldwdgm@gmail.com", passwd = "cebyibawafcragqs", ssl = TRUE),
+                      authenticate = TRUE,
+                      send = TRUE)
+
 
             updateTextInput(session,"customer_email", value="")
             updateTextInput(session,"customer_comment", value="")
@@ -207,10 +215,6 @@ server <- function(input, output, session) {
         }
     })
 
-
-
-    
-    
     # #--------------------------------Data-----------------------------
     # printedColumn = c('country', 'date', 'cases', 'new_cases', 'deaths', 'new_deaths', 'recovered', 'new_recovered', 'active_cases')
     
