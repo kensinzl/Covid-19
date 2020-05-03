@@ -1,3 +1,9 @@
+This has been deployed into shinyapps.io.
+
+https://kensin.shinyapps.io/Covid-19/
+
+
+
 1. tags utilization  
 https://blog.csdn.net/u014801157/article/details/47111651
 
