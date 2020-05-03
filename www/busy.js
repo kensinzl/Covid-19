@@ -8,7 +8,7 @@ setInterval(function(){
             if ($('html').attr('class')=='shiny-busy') {
                 $('div.busy').show();
             }
-        }, 1500);
+        }, 0);
     } else {
         $('div.busy').hide();
     }
